@@ -1,0 +1,27 @@
+package com.hkm.d4cshop.ui.theme
+
+import androidx.compose.ui.graphics.Color
+
+val Purple80 = Color(0xFFD0BCFF)
+val PurpleGrey80 = Color(0xFFCCC2DC)
+val Pink80 = Color(0xFFEFB8C8)
+
+val Purple40 = Color(0xFF6650a4)
+val PurpleGrey40 = Color(0xFF625b71)
+val Pink40 = Color(0xFF7D5260)
+
+val DarkBackground = Color(0xFF1C1C1E)
+val DarkCard = Color(0xFF2C2C2E)
+
+val PrimaryText = Color(0xFFFFFFFF)
+val SecondaryText = Color(0xFFC7C7CC)
+
+val DiscountPrice = Color(0xFF785EF0)
+val OriginalPrice = Color(0xFF888888)
+
+val InStockGreen = Color(0xFFB4FF35)
+val OutOfStockRed = Color(0xFFFF4C4C)
+
+val RatingYellow = Color(0xFFFFD700)
+
+val TagBackground = Color(0xFF212121)

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">d4cshop</string>
+    <string name="shop">Shop</string>
+    <string name="categories">Categories</string>
+    <string name="see_all">See all</string>
+    <string name="new_products">New Products</string>
+</resources>
