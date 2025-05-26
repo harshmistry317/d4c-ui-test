@@ -2,6 +2,7 @@ package com.hkm.d4cshop.screens.shop.component.category
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -38,13 +41,16 @@ import androidx.compose.ui.unit.sp
 import com.hkm.d4cshop.R
 import com.hkm.d4cshop.models.CategoryData
 import com.hkm.d4cshop.ui.theme.DarkBackground
+import com.hkm.d4cshop.ui.theme.InStockGreen
 import com.hkm.d4cshop.ui.theme.PrimaryText
 import com.hkm.d4cshop.ui.theme.SecondaryText
 
 @Composable
 fun Category(
     onSeeAllClick: () -> Unit = {},
-    categoryList: List<CategoryData>
+    categoryList: List<CategoryData>,
+    selectedCategoryData: CategoryData?,
+    onCategoryClick: (CategoryData) -> Unit
 ) {
 
     Column(
@@ -72,7 +78,9 @@ fun Category(
             horizontalArrangement = Arrangement.spacedBy(16.dp) //  space between items
         ) {
             items(categoryList){category ->
-                CategoryItem(categoryData = category)
+                CategoryItem(categoryData = category, selectedCategoryData = selectedCategoryData, onCategoryClick = {
+                    onCategoryClick(it)
+                })
             }
         }
     }
@@ -104,14 +112,22 @@ fun PreviewCategory(){
                     categoryName = "SunsCreams",
                     categoryImage = R.drawable.product_image
                 ),
-            )
+            ),
+            selectedCategoryData = CategoryData(
+                categoryId = 1,
+                categoryName = "Cleaner",
+                categoryImage = R.drawable.category_sample
+            ),
+            onCategoryClick = {}
         )
     }
 }
 
 @Composable
 fun CategoryItem(
-    categoryData: CategoryData
+    categoryData: CategoryData,
+    selectedCategoryData: CategoryData?,
+    onCategoryClick: (CategoryData) -> Unit
 ){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -120,7 +136,11 @@ fun CategoryItem(
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape)
-                .background(DarkBackground),
+                .setBorder(selectedCategoryData?.categoryId == categoryData.categoryId)
+                .background(DarkBackground)
+                .clickable {
+                    onCategoryClick(categoryData)
+                },
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -148,6 +168,30 @@ fun PreviewCategoryItem(){
             categoryData = CategoryData(
                 categoryId = 1,
                 categoryName = "Category Name",
-                categoryImage = R.drawable.product_image))
+                categoryImage = R.drawable.product_image),
+            CategoryData(
+                categoryId = 1,
+                categoryName = "Category Name",
+                categoryImage = R.drawable.product_image),
+            onCategoryClick = {}
+            )
     }
+}
+
+@Composable
+private fun Modifier.setBorder(isSelected: Boolean): Modifier {
+    return this then if (isSelected) {
+        Modifier.border(
+            2.dp, InStockGreen, RoundedCornerShape(100)
+        )
+
+    } else {
+        Modifier.border(
+            width = 2.dp,
+            color =  Color.Transparent,
+            shape = RoundedCornerShape(100)
+        ) // Outer border
+
+    }
+
 }

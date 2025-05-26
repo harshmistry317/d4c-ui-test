@@ -47,26 +47,24 @@ class ShopViewModel @Inject constructor(
 
 
     private val _uiState = MutableStateFlow<ShopUiState>(ShopUiState.Loading)
-//    val uiState: StateFlow<ShopUiState> = _uiState
+    val uiState: StateFlow<ShopUiState> = _uiState
 
     val allBanner = bannerDao.getAllBanner()
     val allCategory = categoryDao.getAllCategory()
     val allProduct = productDao.getAllProduct()
 
-    val uiState = try {
-        combine(allBanner, allCategory, allProduct){ banners, categories, products ->
-            ShopUiState.Success(
-                banners = banners,
-                categories = categories,
-                products = products
-            )
-        }
-    }catch (e: Exception){
-        ShopUiState.Error("Failed to load data: ${e.localizedMessage}")
-    }
+     val selectedCategory = MutableStateFlow<CategoryData?>(null)
+
+//    val uiState = combine(allBanner, allCategory, allProduct){ banners, categories, products ->
+//        ShopUiState.Success(
+//            banners = banners,
+//            categories = categories,
+//            products = products
+//        )
+//    }
 
     init {
-//        observeShopData()
+        observeShopData()
     }
 
     private fun observeShopData() {
@@ -76,13 +74,18 @@ class ShopViewModel @Inject constructor(
                     combine(
                         bannerDao.getAllBanner(),
                         categoryDao.getAllCategory(),
+                        selectedCategory,
                         productDao.getAllProduct()
-                    ) { banners, categories, products ->
+                    ) { banners, categories, selectedCategory,products ->
+                        // Filter products if a category is selected, else show all
+                        val filteredProducts = selectedCategory?.let { category ->
+                            products.filter { it.categoryId == category.categoryId }
+                        } ?: products
 
                         ShopUiState.Success(
                             banners = banners,
                             categories = categories,
-                            products = products
+                            products = filteredProducts
                         )
                     }.collect { state ->
                         _uiState.value = state
@@ -100,5 +103,23 @@ class ShopViewModel @Inject constructor(
             productDao.upsertProduct(product)
             // No need to reload manually – collect will auto-update
         }
+    }
+
+    fun onCateGoryClick(categoryData: CategoryData){
+        viewModelScope.launch {
+            if (selectedCategory.value == categoryData){
+                selectedCategory.value = null
+                val allProduct = productDao.getAllProduct()
+                val currentSate = uiState.value as ShopUiState.Success
+                _uiState.value = currentSate.copy(products = allProduct.first() )
+
+            }else {
+                selectedCategory.value = categoryData
+                val productWithCategory = productDao.getProductsByCategoryId(categoryId = selectedCategory?.value?.categoryId ?: 0)
+                val currentSate = uiState.value as ShopUiState.Success
+                _uiState.value = currentSate.copy(products = productWithCategory.first() )
+            }
+        }
+
     }
 }

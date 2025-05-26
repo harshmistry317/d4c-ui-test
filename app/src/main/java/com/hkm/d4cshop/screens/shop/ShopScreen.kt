@@ -50,6 +50,7 @@ fun ShopScreen(
     viewModel: ShopViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState(ShopUiState.Loading)
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
     when(state){
         is ShopUiState.Loading -> {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -80,7 +81,9 @@ fun ShopScreen(
                     }
                     item{
                         Spacer(Modifier.height(16.dp))
-                        Category(categoryList = data.categories)
+                        Category(categoryList = data.categories, selectedCategoryData = selectedCategory , onCategoryClick = {
+                            viewModel.onCateGoryClick(categoryData = it)
+                        })
                     }
                     item {
                         Spacer(Modifier.height(16.dp))
