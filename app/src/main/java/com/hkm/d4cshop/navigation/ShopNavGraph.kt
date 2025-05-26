@@ -47,10 +47,6 @@ fun ShopNavGraph(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
-//        enterTransition = { slideInHorizontally() },
-//        exitTransition = { slideOutHorizontally() },
-//        popEnterTransition = { slideInHorizontally() },
-//        popExitTransition = { slideOutHorizontally() }
 
         enterTransition = {
             slideInHorizontally(

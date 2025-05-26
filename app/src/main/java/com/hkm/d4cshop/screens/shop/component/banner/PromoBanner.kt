@@ -101,7 +101,7 @@ fun PromoBanner(
 
 @Preview(showBackground = true)
 @Composable
-fun PrviewPromoBanner(){
+fun PreviewPromoBanner(){
     MaterialTheme {
         PromoBanner(
             titleText = "Get 20% Off",

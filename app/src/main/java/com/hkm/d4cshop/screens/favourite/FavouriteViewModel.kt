@@ -50,7 +50,6 @@ class FavouriteViewModel @Inject constructor(
     fun updateProduct(product: ProductData) {
         viewModelScope.launch {
             productDao.upsertProduct(product)
-            // No need to reload manually – collect will auto-update
         }
     }
 }

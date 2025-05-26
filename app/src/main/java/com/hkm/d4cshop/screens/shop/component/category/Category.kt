@@ -190,8 +190,7 @@ private fun Modifier.setBorder(isSelected: Boolean): Modifier {
             width = 2.dp,
             color =  Color.Transparent,
             shape = RoundedCornerShape(100)
-        ) // Outer border
-
+        )
     }
 
 }

@@ -49,19 +49,8 @@ class ShopViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<ShopUiState>(ShopUiState.Loading)
     val uiState: StateFlow<ShopUiState> = _uiState
 
-    val allBanner = bannerDao.getAllBanner()
-    val allCategory = categoryDao.getAllCategory()
-    val allProduct = productDao.getAllProduct()
 
      val selectedCategory = MutableStateFlow<CategoryData?>(null)
-
-//    val uiState = combine(allBanner, allCategory, allProduct){ banners, categories, products ->
-//        ShopUiState.Success(
-//            banners = banners,
-//            categories = categories,
-//            products = products
-//        )
-//    }
 
     init {
         observeShopData()
