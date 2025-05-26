@@ -27,24 +27,24 @@ class AppInitializer @Inject constructor(
             bannerId = 1,
             titleText = "Moisturizer",
             subTitleText = "Get 20% Off",
-            startTime = 0L,
-            endTime = 0L,
+            startTime = 1750963200000, // 26 June 2025
+            endTime = 1751136000000,   // 28 June 2025
             productImage = R.drawable.product_image
         ),
         BannerData(
             bannerId = 2,
             titleText = "Toner",
             subTitleText = "Get 15% Off",
-            startTime = 0L,
-            endTime = 0L,
+            startTime = 1751308800000, // 30 June 2025
+            endTime = 1751568000000,   // 3 July 2025
             productImage = R.drawable.category_sample
         ),
         BannerData(
             bannerId = 3,
             titleText = "Sunscreen",
             subTitleText = "Get 30% Off",
-            startTime = 0L,
-            endTime = 0L,
+            startTime = 1751737200000, // 5 July 2025
+            endTime = 1751996400000,   // 8 July 2025
             productImage = R.drawable.product_image
         )
     )

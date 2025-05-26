@@ -29,6 +29,7 @@ import com.hkm.d4cshop.R
 import com.hkm.d4cshop.models.BannerData
 import com.hkm.d4cshop.ui.theme.DarkBackground
 import com.hkm.d4cshop.ui.theme.InStockGreen
+import com.hkm.d4cshop.utils.Utils
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 
@@ -82,7 +83,7 @@ fun PromoBannerPager(modifier: Modifier = Modifier,
                    PromoBanner(
                        titleText = currentItem.titleText,
                        subTitleText = currentItem.subTitleText,
-                       offerDate = "16-25 oct",
+                       offerDate = Utils.formatDateRange(startMillis = currentItem.startTime, endMillis = currentItem.endTime),
                        productImage = currentItem.productImage
                    )
                 }
