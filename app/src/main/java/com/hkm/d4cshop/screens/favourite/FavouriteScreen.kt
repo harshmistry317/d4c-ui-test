@@ -3,12 +3,16 @@ package com.hkm.d4cshop.screens.favourite
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hkm.d4cshop.composeutils.ItemCard
+import com.hkm.d4cshop.models.ProductData
 import com.hkm.d4cshop.screens.cart.CartUiState
 import com.hkm.d4cshop.ui.theme.InStockGreen
 import com.hkm.d4cshop.ui.theme.PrimaryText
@@ -61,20 +66,26 @@ fun FavouriteScreen(
                 }else {
                     Column(modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())) {
+                        ) {
                         Spacer(Modifier.height(16.dp))
+                        LazyColumn(
+                            contentPadding = PaddingValues(bottom = 16.dp), // Bottom spacing only
+                            verticalArrangement = Arrangement.spacedBy(16.dp) // Between items
+                        ) {
+                           items(items = data.products, key = {it.id}) { productData ->
+                               ItemCard(
+                                   productData = productData,
+                                   onLikeClick = {
+                                   viewModel.updateProduct(it.copy(isLiked = !it.isLiked))
+                               },
+                                   onCartClick = {
+                                   viewModel.updateProduct(it.copy(isInCart = !it.isInCart))
+                               },
+                                   modifier = Modifier.animateItem())
+                           }
 
-                        data.products.forEachIndexed { index, productData ->
-                            if (index != 0) {
-                                Spacer(Modifier.height(16.dp))
-                            }
-                            ItemCard(productData,onLikeClick = {
-                                viewModel.updateProduct(it.copy(isLiked = !it.isLiked))
-                            },onCartClick = {
-                                viewModel.updateProduct(it.copy(isInCart = !it.isInCart))
-                            })
                         }
-                        Spacer(Modifier.height(16.dp))
+
 
 
 

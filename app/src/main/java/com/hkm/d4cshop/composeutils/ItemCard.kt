@@ -51,6 +51,7 @@ import com.hkm.d4cshop.ui.theme.SecondaryText
 
 @Composable
 fun ItemCard(
+    modifier: Modifier = Modifier,
     productData: ProductData,
     onLikeClick:(ProductData) -> Unit,
     onCartClick:(ProductData) -> Unit
@@ -58,7 +59,7 @@ fun ItemCard(
     val price =
         if (productData.discountedPrice < productData.actualPrice) productData.discountedPrice else productData.actualPrice
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {

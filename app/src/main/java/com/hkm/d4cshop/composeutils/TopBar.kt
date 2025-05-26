@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hkm.d4cshop.R
 import com.hkm.d4cshop.ui.theme.InStockGreen
+import com.hkm.d4cshop.ui.theme.PrimaryText
 
 @Composable
 fun TopBar(
@@ -51,7 +52,10 @@ fun TopBar(
     leftButtonIcon: ImageVector,
     showRightButton: Boolean,
     showLeftButton: Boolean,
-    showCenterButton: Boolean
+    showCenterButton: Boolean,
+    showRightCornerText: Boolean,
+    rightCornerText: String,
+    onTextClick: () -> Unit
 ) {
 
     Row(modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
@@ -96,6 +100,23 @@ fun TopBar(
             ) {
                 onRightButtonClick()
             }, showBadge = showBadge)
+        }
+        if (showRightCornerText){
+            Text(
+                modifier = Modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null // removes ripple effect
+                ) {
+                    onTextClick()
+                },
+                text = rightCornerText,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 16.sp,
+                    color = PrimaryText
+                )
+            )
+
         }
 
 
@@ -157,10 +178,13 @@ fun TopBarPreview() {
             rightButtonIcon = Icons.Default.ShoppingCart,
             centerButtonIcon = Icons.Default.Search,
             leftButtonIcon = Icons.Default.FavoriteBorder,
-            showRightButton = true,
-            showLeftButton = true,
-            showCenterButton = true,
-            showBadge = true
+            showRightButton = false,
+            showLeftButton = false,
+            showCenterButton = false,
+            showBadge = false,
+            showRightCornerText = true,
+            rightCornerText = "Remove All",
+            onTextClick = {}
         )
 
     }

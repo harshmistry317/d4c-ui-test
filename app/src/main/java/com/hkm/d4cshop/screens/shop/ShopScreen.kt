@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,7 +49,7 @@ import com.hkm.d4cshop.ui.theme.PrimaryText
 fun ShopScreen(
     viewModel: ShopViewModel = hiltViewModel()
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsState(ShopUiState.Loading)
     when(state){
         is ShopUiState.Loading -> {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -65,54 +68,60 @@ fun ShopScreen(
         is ShopUiState.Success ->{
             val data = state as ShopUiState.Success
             AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(animationSpec = TweenSpec(250))
+                visible = state != ShopUiState.Loading,
+                enter = fadeIn(animationSpec = TweenSpec(1000))
             ) {
-                Column(modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())) {
-                    if (data.banners.isNotEmpty()){
-                        PromoBannerPager(bannerList = data.banners)
+                LazyColumn(modifier = Modifier
+                    .fillMaxSize()) {
+                    item {
+                        if (data.banners.isNotEmpty()){
+                            PromoBannerPager(bannerList = data.banners)
+                        }
+                    }
+                    item{
+                        Spacer(Modifier.height(16.dp))
+                        Category(categoryList = data.categories)
+                    }
+                    item {
+                        Spacer(Modifier.height(16.dp))
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(
+                                modifier = Modifier,
+                                text = stringResource(R.string.new_products),
+                                style = MaterialTheme.typography.headlineMedium.copy(color = PrimaryText)
+                            )
+                            Text(
+                                modifier = Modifier.clickable {
+
+                                },
+                                text = stringResource(R.string.see_all),
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.W400, fontSize = 18.sp,color = PrimaryText,textDecoration = TextDecoration.Underline, lineHeight = 22.sp)
+                            )
+                        }
+                        Spacer(Modifier.height(16.dp))
                     }
 
-                    Spacer(Modifier.height(16.dp))
-                    Category(categoryList = data.categories)
-                    Spacer(Modifier.height(16.dp))
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(
-                            modifier = Modifier,
-                            text = stringResource(R.string.new_products),
-                            style = MaterialTheme.typography.headlineMedium.copy(color = PrimaryText)
-                        )
-                        Text(
-                            modifier = Modifier.clickable {
-
-                            },
-                            text = stringResource(R.string.see_all),
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.W400, fontSize = 18.sp,color = PrimaryText,textDecoration = TextDecoration.Underline, lineHeight = 22.sp)
-                        )
-                    }
-                    Spacer(Modifier.height(16.dp))
-
-                    data.products.forEachIndexed { index, productData ->
+                    itemsIndexed(data.products, key = {index, item ->  item.id}){ index, item ->
                         if (index != 0) {
                             Spacer(Modifier.height(16.dp))
                         }
-                        ItemCard(productData,onLikeClick = {
+                        ItemCard(productData = item,onLikeClick = {
                             viewModel.updateProduct(it.copy(isLiked = !it.isLiked))
                         },onCartClick = {
                             viewModel.updateProduct(it.copy(isInCart = !it.isInCart))
-                        })
+                        },
+                            modifier = Modifier.animateItem())
                     }
-                    Spacer(Modifier.height(16.dp))
-
-
+                    item {
+                        Spacer(Modifier.height(16.dp))
+                    }
 
                 }
+
             }
 
         }

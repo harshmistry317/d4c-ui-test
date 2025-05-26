@@ -13,7 +13,9 @@ import com.hkm.d4cshop.models.BannerData
 import com.hkm.d4cshop.models.CategoryData
 import com.hkm.d4cshop.models.ProductData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -45,28 +47,48 @@ class ShopViewModel @Inject constructor(
 
 
     private val _uiState = MutableStateFlow<ShopUiState>(ShopUiState.Loading)
-    val uiState: StateFlow<ShopUiState> = _uiState
+//    val uiState: StateFlow<ShopUiState> = _uiState
+
+    val allBanner = bannerDao.getAllBanner()
+    val allCategory = categoryDao.getAllCategory()
+    val allProduct = productDao.getAllProduct()
+
+    val uiState = try {
+        combine(allBanner, allCategory, allProduct){ banners, categories, products ->
+            ShopUiState.Success(
+                banners = banners,
+                categories = categories,
+                products = products
+            )
+        }
+    }catch (e: Exception){
+        ShopUiState.Error("Failed to load data: ${e.localizedMessage}")
+    }
 
     init {
-        observeShopData()
+//        observeShopData()
     }
 
     private fun observeShopData() {
         viewModelScope.launch {
             try {
-                combine(
-                    bannerDao.getAllBanner(),
-                    categoryDao.getAllCategory(),
-                    productDao.getAllProduct()
-                ) { banners, categories, products ->
-                    ShopUiState.Success(
-                        banners = banners,
-                        categories = categories,
-                        products = products
-                    )
-                }.collect { state ->
-                    _uiState.value = state
+                with(Dispatchers.IO){
+                    combine(
+                        bannerDao.getAllBanner(),
+                        categoryDao.getAllCategory(),
+                        productDao.getAllProduct()
+                    ) { banners, categories, products ->
+
+                        ShopUiState.Success(
+                            banners = banners,
+                            categories = categories,
+                            products = products
+                        )
+                    }.collect { state ->
+                        _uiState.value = state
+                    }
                 }
+
             } catch (e: Exception) {
                 _uiState.value = ShopUiState.Error("Failed to load data: ${e.localizedMessage}")
             }

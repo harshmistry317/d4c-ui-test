@@ -2,6 +2,7 @@ package com.hkm.d4cshop.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.view.PixelCopy
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hkm.d4cshop.MainViewModel
 import com.hkm.d4cshop.R
 import com.hkm.d4cshop.composeutils.TopBar
+import com.hkm.d4cshop.composeutils.dialogs.ShopAlertDialog
 import com.hkm.d4cshop.navigation.ShopDestinations
 import com.hkm.d4cshop.navigation.ShopNavGraph
 import com.hkm.d4cshop.screens.shop.ShopScreen
@@ -49,8 +52,8 @@ fun MainScreen(
     val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
 
 
-    val productInCart by viewModel.getCartProduct.observeAsState(emptyList())
-    val productLiked by viewModel.getLikedProduct.observeAsState(emptyList())
+    val productInCart by viewModel.getCartProduct.collectAsState(emptyList())
+    val productLiked by viewModel.getLikedProduct.collectAsState(emptyList())
     var totalLike by remember { mutableStateOf(0) }
     var totalCart by remember { mutableStateOf(0) }
 
@@ -62,11 +65,16 @@ fun MainScreen(
     var showRightButton by remember { mutableStateOf(false) }
     var showLeftButton by remember { mutableStateOf(false) }
     var showCenterButton by remember { mutableStateOf(false) }
+    var showRightCornerText by remember { mutableStateOf(false) }
+    var rightCornerText by remember { mutableStateOf("") }
+    var shouldShowDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(productLiked, productInCart) {
         totalLike = productLiked.size
         totalCart = productInCart.size
     }
-    LaunchedEffect(currentRoute){
+    LaunchedEffect(currentRoute,productLiked,productInCart){
+
         when(currentRoute){
             ShopDestinations.SHOP_ROUTE -> {
                 topBarText = "Shop"
@@ -77,6 +85,7 @@ fun MainScreen(
                 showRightButton = true
                 showLeftButton = true
                 showCenterButton = true
+                showRightCornerText = false
             }
             ShopDestinations.CART_ROUTE -> {
                topBarText = "My Cart"
@@ -84,9 +93,11 @@ fun MainScreen(
                 rightButtonIcon = Icons.Default.Delete
                 centerButtonIcon = Icons.Default.FavoriteBorder
                 leftButtonIcon = Icons.Default.Search
-                showRightButton = true
+                showRightButton = false
                 showLeftButton = false
                 showCenterButton = false
+                showRightCornerText = totalCart > 0
+                rightCornerText = "Remove all"
             }
             ShopDestinations.FAVOURITE_ROUTE -> {
                 topBarText = "Favourite"
@@ -94,9 +105,11 @@ fun MainScreen(
                 rightButtonIcon = Icons.Default.Delete
                 centerButtonIcon = Icons.Default.FavoriteBorder
                 leftButtonIcon = Icons.Default.Search
-                showRightButton = true
+                showRightButton = false
                 showLeftButton = false
                 showCenterButton = false
+                showRightCornerText = totalLike > 0
+                rightCornerText = "Remove all"
             }
             else -> {
                 topBarText = "Shop"
@@ -107,9 +120,11 @@ fun MainScreen(
                 showRightButton = false
                 showLeftButton = false
                 showCenterButton = false
+                showRightCornerText = false
             }
         }
     }
+
 
     Scaffold(topBar = {
         TopBar(
@@ -119,20 +134,23 @@ fun MainScreen(
                 navController.navigateUp()
             },
             onRightButtonClick = {
-                when(currentRoute){
+                when (currentRoute) {
                     ShopDestinations.SHOP_ROUTE -> {
                         navController.navigate(ShopDestinations.CART_ROUTE)
                     }
+
                     ShopDestinations.CART_ROUTE -> {
 
-                }
+                    }
                 }
             },
             onCenterButtonClick = {
-                when(currentRoute){
+                when (currentRoute) {
+
                     ShopDestinations.SHOP_ROUTE -> {
                         navController.navigate(ShopDestinations.FAVOURITE_ROUTE)
                     }
+
                     ShopDestinations.CART_ROUTE -> {
 
                     }
@@ -148,10 +166,62 @@ fun MainScreen(
             showRightButton = showRightButton,
             showLeftButton = showLeftButton,
             showCenterButton = showCenterButton,
+            showRightCornerText = showRightCornerText,
+            rightCornerText = rightCornerText,
+            onTextClick = {
+                shouldShowDialog = true
+            },
         )
     }) { innerPadding->
 
         Surface(modifier = Modifier.padding(innerPadding)) {
+            if (shouldShowDialog){
+                ShopAlertDialog(
+                    message = when(currentRoute){
+                        ShopDestinations.CART_ROUTE -> {
+                            "Do you want remove all items from cart?"
+                        }
+
+                        ShopDestinations.FAVOURITE_ROUTE -> {
+                            "Do you want remove all items from favourite?"
+                        }
+                        else -> {
+                            ""
+                        }
+                    },
+                    title = when(currentRoute){
+                        ShopDestinations.CART_ROUTE -> {
+                            "Remove"
+                        }
+
+                        ShopDestinations.FAVOURITE_ROUTE -> {
+                            "Remove"
+                        }
+                        else -> {
+                            ""
+                        }
+                    },
+                    showNegativeButton = true,
+                    positiveButtonText = "Cancel",
+                    negativeButtonText = "Remove all",
+                    onPositiveButtonClick = {
+                        shouldShowDialog = false
+                    },
+                    onNegativeButtonClick = {
+                        when(currentRoute){
+                            ShopDestinations.CART_ROUTE -> {
+                                viewModel.removeALlFromCart()
+                            }
+
+                            ShopDestinations.FAVOURITE_ROUTE -> {
+                                viewModel.removeAllFromLiked()
+                            }
+                            else -> Unit
+                        }
+                        shouldShowDialog = false
+                    }
+                )
+            }
             ShopNavGraph(
                 navController = navController,
                 startDestination = startDestination,
